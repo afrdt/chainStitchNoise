@@ -14,49 +14,41 @@
 
 #include <CapacitiveSensor.h> // Use the capacitive sensing library.
 
-CapacitiveSensor switchOn = CapacitiveSensor(1, 2); // 1MOhms resistor between digital pin 1 and 2, 2 is the sensor pin.
-CapacitiveSensor touch = CapacitiveSensor(4, 3); // 1MOhms resistor between digital pin 4 and 3, 3 is the sensor pin.
+CapacitiveSensor right = CapacitiveSensor(1, 2); // 1MOhms resistor between digital pin 1 and 2, 2 is the sensor pin.
+CapacitiveSensor left = CapacitiveSensor(4, 3); // 1MOhms resistor between digital pin 4 and 3, 3 is the sensor pin.
 
-long touchVal = 0; // Variable to store the touch sensor's value
-int outVal = 0; // Variable to store the mapped touch sensor's value
+long rightVal = 0; // Variable to store the right sensor's value
+int freqVal = 0; // Variable to store the mapped right sensor's value - to be later used as frequency modulator
 
-long switchOnVal = 0; // Variable to store the switchOn sensor's value
-int freqVal = 0; // Variable to store the mapped switchOn sensor's value - to be later used as frequency modulator
+long leftVal = 0; // Variable to store the left sensor's value
+int outVal = 0; // Variable to store the mapped left sensor's value
 
 int speakerPin = 0; // Speaker connected to digital pin 0
-// int speakerPin = 11; // Speaker connected to digital pin 11 - for debugging with Arduino UNO
+
 
 unsigned long int reg;
 
 void setup() {
-  //  Serial.begin(9600); // for debugging with Arduino UNO.
   pinMode(speakerPin, OUTPUT); // initialize the speakerPin as an output
   reg = 0x55aa55aaL; //The seed for the bitstream. It can be anything except 0.
 }
 
 void loop() {
-  touchVal = touch.capacitiveSensor(30); // read the touch sensor value
-  outVal = map(touchVal, 0, 30000, 50, 0); // map the touch sensor value in milliseconds to be used as a delay between each grain repetition.
+  rightVal = right.capacitiveSensor(30); // read the right sensor's value
+  freqVal = map(rightVal, 0, 15000, 400, 0); // map the right sensor's value in a frequency range to be used as frequency modulation.
 
-  switchOnVal = switchOn.capacitiveSensor(30); // read the SwitchOn sensor value - used to turn on the noise generator.
-  freqVal = map(switchOnVal, 0, 15000, 400, 0); // map the touch sensor value in milliseconds to be used as a delay between each grain repetition.
+  leftVal = left.capacitiveSensor(30); // read the left sensor's value
+  outVal = map(leftVal, 0, 30000, 50, 0); // map the left sensor's value in milliseconds to be used as a delay between each grain repetition.
 
-  //  Serial.print("\t switchOnVal = ");
-  //  Serial.print(switchOnVal);
-  //  Serial.print("\t touchVal = ");
-  //  Serial.print(touchVal);
-  //  Serial.print("\t freqVal = ");
-  //  Serial.println(freqVal);
-
-  if (touchVal > 40) {
-    for (int i = 0; i < 500; i++) {
+  if (rightVal > 40) {
+    for (int i = 0; i < 150; i++) {
       generateNoise();
     }
     delay(outVal);
   }
 
-  if (switchOnVal > 40) {
-    for (int i = 0; i < 150; i++) {
+  if (leftVal > 40) {
+    for (int i = 0; i < 500; i++) {
       generateNoise();
     }
     delay(outVal);
